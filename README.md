@@ -1,8 +1,6 @@
 # Wall Calendar Component
 
-A production-quality interactive wall calendar built for a frontend engineering internship evaluation. Features a realistic physical calendar aesthetic with spiral binding, premium photography, and smooth micro-interactions.
-
-![Wall Calendar](./docs/wall-calendar.png)
+A production-quality interactive wall calendar built for a frontend engineering internship evaluation. Features a realistic physical calendar aesthetic with spiral binding rings, month-specific Unsplash photography, and smooth micro-interactions.
 
 ## Features
 
@@ -11,15 +9,15 @@ A production-quality interactive wall calendar built for a frontend engineering 
 - **Notes System** — Attach notes to date ranges with full CRUD operations
 - **localStorage Persistence** — Notes survive page refreshes
 - **Keyboard Navigation** — Arrow keys for months, Escape to clear selection
-- **Responsive Design** — Desktop card layout, mobile stacked layout
+- **Responsive Design** — Desktop card layout with physical calendar aesthetic
 
 ### Premium Polish
-- **Physical Wall Calendar Aesthetic** — Spiral binding strip with realistic metal rings, subtle 0.25° tilt, layered shadows
-- **Dynamic Hero Images** — Month-specific Unsplash photos with parallax zoom on hover
-- **Holiday Indicators** — US federal holidays shown with colored dots and tooltips
-- **Animated Range Bands** — Pill-shaped date range visualization with smooth transitions
-- **Today Beacon** — Pulsing animation on current date
+- **Physical Wall Calendar Aesthetic** — Realistic spiral binding strip with metallic rings, subtle tilt, layered shadows
+- **Dynamic Hero Images** — Month-specific Unsplash photos with gradient overlays and subtle zoom on hover
+- **Animated Range Bands** — Clean date range visualization with smooth transitions
+- **Today Indicator** — Small accent dot on current date
 - **Dark Mode Support** — Full theme inversion with adjusted accent colors
+- **Film Grain Texture** — Subtle texture overlay for authentic feel
 
 ## Tech Stack
 

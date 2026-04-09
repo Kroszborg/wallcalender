@@ -29,11 +29,13 @@ export function DayCell({
   const isSelected = isStart || isEnd
   const isToday = format(new Date(), "yyyy-MM-dd") === format(date, "yyyy-MM-dd")
   const isWeekend = isWeekendDay(date)
+  const isSingleDate = isStart && isEnd
 
+  // Only show bands for multi-date ranges
   const showStartBand = isStart && !isEnd
   const showEndBand = isEnd && !isStart
-  const showMiddleBand = isInRange
-  const showHoverBand = isHoverRange && !isInRange
+  const showMiddleBand = isInRange && !isSingleDate
+  const showHoverBand = isHoverRange && !isInRange && !isSingleDate
 
   const dayNumber = format(date, "d")
 
@@ -41,35 +43,35 @@ export function DayCell({
     <div
       className={cn(
         "relative flex h-10 items-center justify-center select-none",
-        isWeekend && isCurrentMonth && "bg-stone-50/40"
+        isWeekend && isCurrentMonth && "bg-stone-50/60"
       )}
       onMouseEnter={onMouseEnter}
       onMouseLeave={onMouseLeave}
     >
-      {/* ── Confirmed range band — full height solid ──────── */}
+      {/* ── Confirmed range band ──────── */}
       {showStartBand && (
         <div
-          className="absolute inset-y-1 left-1/2 right-0 transition-colors duration-200"
-          style={{ backgroundColor: "var(--cal-accent-light)", borderRadius: "6px 0 0 6px" }}
+          className="absolute inset-y-[5px] left-1/2 right-0"
+          style={{ backgroundColor: "var(--cal-accent-light)" }}
         />
       )}
       {showMiddleBand && (
         <div
-          className="absolute inset-y-1 left-0 right-0 transition-colors duration-200"
+          className="absolute inset-y-[5px] left-0 right-0"
           style={{ backgroundColor: "var(--cal-accent-light)" }}
         />
       )}
       {showEndBand && (
         <div
-          className="absolute inset-y-1 left-0 right-1/2 transition-colors duration-200"
-          style={{ backgroundColor: "var(--cal-accent-light)", borderRadius: "0 6px 6px 0" }}
+          className="absolute inset-y-[5px] left-0 right-1/2"
+          style={{ backgroundColor: "var(--cal-accent-light)" }}
         />
       )}
 
-      {/* ── Hover preview band (lighter) ─────────────────── */}
+      {/* ── Hover preview band ─────────── */}
       {showHoverBand && (
         <div
-          className="absolute inset-y-1 left-0 right-0 transition-colors duration-150"
+          className="absolute inset-y-[5px] left-0 right-0"
           style={{ backgroundColor: "var(--cal-accent-light)", opacity: 0.5 }}
         />
       )}
