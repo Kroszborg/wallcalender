@@ -42,49 +42,65 @@ export function DayCell({
 }: DayCellProps) {
   const isSelected = isStart || isEnd
   const isSingleDay = isStart && isEnd
-  const showBand = (isInRange || isHoverRange) && !isSingleDay
+
+  // Show confirmed pill band on start/end/interior cells (not single-day)
+  const showStartBand  = isStart && !isEnd
+  const showEndBand    = isEnd && !isStart
+  const showMiddleBand = isInRange  // interior confirmed cells
+  const showHoverBand  = isHoverRange && !isInRange  // hover preview (no pill caps)
+
   const dayNumber = format(date, "d")
 
   const cellContent = (
     <div
-      className="relative flex h-10 items-center justify-center select-none group/cell"
+      className={cn(
+        "relative flex h-10 items-center justify-center select-none",
+        // Weekend column — very subtle warm tint
+        isWeekend && isCurrentMonth && "bg-stone-50/70"
+      )}
       onMouseEnter={onMouseEnter}
       onMouseLeave={onMouseLeave}
     >
-      {/* ── Range band (confirmed) ──────────────────────── */}
-      {isInRange && !isSingleDay && (
+      {/* ── Confirmed range band — pill-shaped ───────────── */}
+      {showStartBand && (
         <div
-          className="absolute inset-y-[5px] inset-x-0 transition-all duration-150"
+          className="absolute inset-y-[7px] left-1/2 right-0 rounded-l-full transition-colors duration-200"
           style={{ backgroundColor: "var(--cal-accent-light)" }}
-          data-range-part={
-            isStart ? "start" : isEnd ? "end" : "middle"
-          }
+        />
+      )}
+      {showMiddleBand && (
+        <div
+          className="absolute inset-y-[7px] left-0 right-0 transition-colors duration-200"
+          style={{ backgroundColor: "var(--cal-accent-light)" }}
+        />
+      )}
+      {showEndBand && (
+        <div
+          className="absolute inset-y-[7px] left-0 right-1/2 rounded-r-full transition-colors duration-200"
+          style={{ backgroundColor: "var(--cal-accent-light)" }}
         />
       )}
 
-      {/* ── Range band (hover preview) ──────────────────── */}
-      {isHoverRange && !isInRange && !isSingleDay && (
+      {/* ── Hover preview band (flat, dimmer) ────────────── */}
+      {showHoverBand && (
         <div
-          className="absolute inset-y-[5px] inset-x-0 transition-all duration-150"
-          style={{ backgroundColor: "var(--cal-accent-light)", opacity: 0.55 }}
+          className="absolute inset-y-[7px] left-0 right-0 transition-colors duration-150"
+          style={{ backgroundColor: "var(--cal-accent-light)", opacity: 0.42 }}
         />
       )}
 
-      {/* Band end-caps: cut the band flush at start/end edges */}
-      {showBand && isStart && !isSingleDay && (
-        <div
-          className="absolute inset-y-[5px] left-0 w-1/2"
-          style={{ backgroundColor: "var(--card, white)" }}
-        />
-      )}
-      {showBand && isEnd && !isSingleDay && (
-        <div
-          className="absolute inset-y-[5px] right-0 w-1/2"
-          style={{ backgroundColor: "var(--card, white)" }}
+      {/* ── Today pulsing beacon ─────────────────────────── */}
+      {isToday && !isSelected && (
+        <span
+          className="absolute inset-[6px] rounded-full pointer-events-none"
+          style={{
+            backgroundColor: "var(--cal-accent-light)",
+            animation: "cal-beacon 2.6s ease-out infinite",
+          }}
         />
       )}
 
-      {/* ── Day circle ────────────────────────────────────── */}
+      {/* ── Day circle button ────────────────────────────── */}
       <button
         onClick={onClick}
         aria-label={format(date, "MMMM d, yyyy")}
@@ -92,79 +108,53 @@ export function DayCell({
           "relative z-10 flex flex-col items-center justify-center rounded-full",
           "text-[13px] font-medium cursor-pointer outline-none select-none",
           "transition-all duration-150",
-          "focus-visible:ring-2 focus-visible:ring-offset-1",
-          // Size
+          "focus-visible:ring-2 focus-visible:ring-offset-1 focus-visible:ring-violet-400",
           "size-9",
-          // Not selected — hover states
-          !isSelected && isCurrentMonth && [
-            "hover:scale-105",
-            isWeekend ? "hover:bg-stone-100" : "hover:bg-stone-100",
-          ],
+          "active:scale-95",
+          // Unselected hover
+          !isSelected && "hover:scale-105",
+          !isSelected && isCurrentMonth && "hover:bg-stone-100",
           !isSelected && !isCurrentMonth && "hover:bg-stone-50",
-          // Out-of-month
+          // Text colours
           !isCurrentMonth && "text-stone-300",
-          // Weekends
           isCurrentMonth && isWeekend && !isSelected && "text-stone-400",
-          // Regular days
           isCurrentMonth && !isWeekend && !isSelected && "text-stone-800",
-          // Today (not selected) — ring treatment
-          isToday && !isSelected && [
-            "font-bold",
-          ],
-          // Selected start/end
-          isSelected && [
-            "scale-105 font-bold text-white",
-            "shadow-[0_4px_14px_rgba(79,70,229,0.45)]",
-          ]
+          // Today emphasis
+          isToday && !isSelected && "font-bold",
+          // Selected endpoint
+          isSelected && "text-white font-bold scale-105"
         )}
         style={
           isSelected
-            ? { backgroundColor: "var(--cal-accent)" }
+            ? {
+                backgroundColor: "var(--cal-accent)",
+                boxShadow: `0 4px 14px rgba(var(--cal-accent-rgb), 0.42), 0 0 0 3px rgba(var(--cal-accent-rgb), 0.18)`,
+              }
             : undefined
         }
       >
         <span className="leading-none">{dayNumber}</span>
 
-        {/* Today accent dot */}
+        {/* Today accent dot (below number) */}
         {isToday && !isSelected && (
           <span
-            className="absolute bottom-[3px] size-1 rounded-full"
+            className="absolute bottom-[2px] size-[5px] rounded-full"
             style={{ backgroundColor: "var(--cal-accent)" }}
           />
         )}
 
-        {/* Holiday / note dots (below number) */}
+        {/* Holiday / note indicator dots */}
         {!isToday && (holiday || hasNote) && (
-          <span className="absolute bottom-[3px] flex items-center gap-0.5">
+          <span className="absolute bottom-[2px] flex gap-0.5">
             {holiday && (
               <span
-                className={cn(
-                  "block size-1 rounded-full",
-                  isSelected ? "bg-white/70" : "bg-rose-400"
-                )}
+                className={cn("block size-1 rounded-full", isSelected ? "bg-white/60" : "bg-rose-400")}
               />
             )}
             {hasNote && (
               <span
-                className={cn(
-                  "block size-1 rounded-full",
-                  isSelected ? "bg-white/70" : ""
-                )}
+                className={cn("block size-1 rounded-full", isSelected ? "bg-white/60" : "")}
                 style={!isSelected ? { backgroundColor: "var(--cal-accent-mid)" } : undefined}
-              />
-            )}
-          </span>
-        )}
-
-        {isToday && (holiday || hasNote) && (
-          <span className="absolute bottom-[3px] flex items-center gap-0.5">
-            {holiday && (
-              <span className="block size-1 rounded-full bg-rose-400" />
-            )}
-            {hasNote && (
-              <span
-                className="block size-1 rounded-full"
-                style={{ backgroundColor: "var(--cal-accent-mid)" }}
               />
             )}
           </span>

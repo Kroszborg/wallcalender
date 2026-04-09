@@ -12,30 +12,22 @@ import type { SelectionPhase, DateRange, CalendarNote } from "@/lib/calendar-uti
 const NOTES_KEY = "wall-calendar-notes-v1"
 
 export function Calendar() {
-  // Use a lazy initializer — stable on client, avoids SSR mismatch
-  const [currentMonth, setCurrentMonth] = useState<Date>(() =>
-    startOfMonth(new Date())
-  )
+  const [currentMonth, setCurrentMonth] = useState<Date>(() => startOfMonth(new Date()))
   const [selectionPhase, setSelectionPhase] = useState<SelectionPhase>("idle")
   const [rangeStart, setRangeStart] = useState<Date | null>(null)
   const [rangeEnd, setRangeEnd] = useState<Date | null>(null)
   const [hoverDate, setHoverDate] = useState<Date | null>(null)
   const [notes, setNotes] = useState<CalendarNote[]>([])
-  const [animationDirection, setAnimationDirection] = useState<
-    "left" | "right" | null
-  >(null)
+  const [animationDirection, setAnimationDirection] = useState<"left" | "right" | null>(null)
 
-  // SSR-safe localStorage hydration
+  // SSR-safe localStorage
   useEffect(() => {
     try {
       const raw = localStorage.getItem(NOTES_KEY)
       if (raw) setNotes(JSON.parse(raw) as CalendarNote[])
-    } catch {
-      // silent fail
-    }
+    } catch { /* silent */ }
   }, [])
 
-  // Persist notes on change
   useEffect(() => {
     localStorage.setItem(NOTES_KEY, JSON.stringify(notes))
   }, [notes])
@@ -52,7 +44,50 @@ export function Calendar() {
     return null
   }, [rangeStart, rangeEnd, hoverDate])
 
-  // ── 3-click selection state machine ──────────────────────
+  // ── Month navigation ──────────────────────────────────────
+  function handlePrevMonth() {
+    setAnimationDirection("right")
+    setCurrentMonth(prev => subMonths(prev, 1))
+    setTimeout(() => setAnimationDirection(null), 320)
+  }
+
+  function handleNextMonth() {
+    setAnimationDirection("left")
+    setCurrentMonth(prev => addMonths(prev, 1))
+    setTimeout(() => setAnimationDirection(null), 320)
+  }
+
+  // ── Keyboard navigation ───────────────────────────────────
+  useEffect(() => {
+    function onKey(e: KeyboardEvent) {
+      // Don't capture while typing in a form field
+      if (
+        e.target instanceof HTMLTextAreaElement ||
+        e.target instanceof HTMLInputElement
+      ) return
+
+      if (e.key === "ArrowLeft") {
+        e.preventDefault()
+        setAnimationDirection("right")
+        setCurrentMonth(prev => subMonths(prev, 1))
+        setTimeout(() => setAnimationDirection(null), 320)
+      } else if (e.key === "ArrowRight") {
+        e.preventDefault()
+        setAnimationDirection("left")
+        setCurrentMonth(prev => addMonths(prev, 1))
+        setTimeout(() => setAnimationDirection(null), 320)
+      } else if (e.key === "Escape") {
+        setRangeStart(null)
+        setRangeEnd(null)
+        setSelectionPhase("idle")
+        setHoverDate(null)
+      }
+    }
+    window.addEventListener("keydown", onKey)
+    return () => window.removeEventListener("keydown", onKey)
+  }, []) // state setters are stable refs
+
+  // ── 3-click selection machine ─────────────────────────────
   function handleDayClick(date: Date) {
     switch (selectionPhase) {
       case "idle": {
@@ -86,34 +121,24 @@ export function Calendar() {
     if (selectionPhase === "selecting") setHoverDate(date)
   }
 
-  function handlePrevMonth() {
-    setAnimationDirection("right")
-    setCurrentMonth((prev) => subMonths(prev, 1))
-    setTimeout(() => setAnimationDirection(null), 320)
-  }
-
-  function handleNextMonth() {
-    setAnimationDirection("left")
-    setCurrentMonth((prev) => addMonths(prev, 1))
-    setTimeout(() => setAnimationDirection(null), 320)
-  }
-
   // ── Notes CRUD ────────────────────────────────────────────
   function handleSaveNote(content: string, start: Date, end: Date) {
-    const note: CalendarNote = {
-      id: crypto.randomUUID(),
-      rangeStart: format(start, "yyyy-MM-dd"),
-      rangeEnd: format(end, "yyyy-MM-dd"),
-      content: content.trim(),
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-    }
-    setNotes((prev) => [...prev, note])
+    setNotes(prev => [
+      ...prev,
+      {
+        id: crypto.randomUUID(),
+        rangeStart: format(start, "yyyy-MM-dd"),
+        rangeEnd: format(end, "yyyy-MM-dd"),
+        content: content.trim(),
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      },
+    ])
   }
 
   function handleUpdateNote(id: string, content: string) {
-    setNotes((prev) =>
-      prev.map((n) =>
+    setNotes(prev =>
+      prev.map(n =>
         n.id === id
           ? { ...n, content: content.trim(), updatedAt: new Date().toISOString() }
           : n
@@ -122,21 +147,22 @@ export function Calendar() {
   }
 
   function handleDeleteNote(id: string) {
-    setNotes((prev) => prev.filter((n) => n.id !== id))
+    setNotes(prev => prev.filter(n => n.id !== id))
   }
 
   return (
     <div
       suppressHydrationWarning
       className={cn(
-        "w-full max-w-[480px] md:max-w-[520px] rounded-[28px] overflow-hidden bg-white",
-        "shadow-[0_40px_100px_-20px_rgba(0,0,0,0.22),0_12px_32px_-8px_rgba(0,0,0,0.12),0_0_0_1px_rgba(0,0,0,0.04)]"
+        "w-full max-w-[480px] md:max-w-[520px]",
+        "rounded-[28px] overflow-hidden bg-white",
+        // Slight physical tilt — real calendar hanging on wall
+        "rotate-[0.25deg]",
+        "shadow-[0_48px_120px_-20px_rgba(0,0,0,0.28),0_16px_40px_-8px_rgba(0,0,0,0.14),0_0_0_1px_rgba(0,0,0,0.05)]"
       )}
     >
-      {/* Hero + binding strip */}
       <HeroImage month={currentMonth} />
 
-      {/* Month navigator */}
       <MonthNavigator
         currentMonth={currentMonth}
         onPrev={handlePrevMonth}
@@ -144,7 +170,6 @@ export function Calendar() {
         animationDirection={animationDirection}
       />
 
-      {/* Calendar grid */}
       <CalendarGrid
         currentMonth={currentMonth}
         selectionPhase={selectionPhase}
@@ -158,10 +183,8 @@ export function Calendar() {
         animationDirection={animationDirection}
       />
 
-      {/* Divider */}
-      <div className="mx-5 md:mx-6 border-t border-stone-100" />
+      <div className="mx-5 border-t border-stone-100" />
 
-      {/* Notes panel */}
       <NotesPanel
         rangeStart={rangeStart}
         rangeEnd={rangeEnd}

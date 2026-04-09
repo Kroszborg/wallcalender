@@ -1,36 +1,188 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Wall Calendar Component
+
+A production-quality interactive wall calendar built for a frontend engineering internship evaluation. Features a realistic physical calendar aesthetic with spiral binding, premium photography, and smooth micro-interactions.
+
+![Wall Calendar](./docs/wall-calendar.png)
+
+## Features
+
+### Core Functionality
+- **Date Range Selection** — 3-click state machine (start → end → confirm) with visual feedback
+- **Notes System** — Attach notes to date ranges with full CRUD operations
+- **localStorage Persistence** — Notes survive page refreshes
+- **Keyboard Navigation** — Arrow keys for months, Escape to clear selection
+- **Responsive Design** — Desktop card layout, mobile stacked layout
+
+### Premium Polish
+- **Physical Wall Calendar Aesthetic** — Spiral binding strip with realistic metal rings, subtle 0.25° tilt, layered shadows
+- **Dynamic Hero Images** — Month-specific Unsplash photos with parallax zoom on hover
+- **Holiday Indicators** — US federal holidays shown with colored dots and tooltips
+- **Animated Range Bands** — Pill-shaped date range visualization with smooth transitions
+- **Today Beacon** — Pulsing animation on current date
+- **Dark Mode Support** — Full theme inversion with adjusted accent colors
+
+## Tech Stack
+
+| Category | Technology |
+|----------|------------|
+| Framework | Next.js 16.2.2 (App Router) |
+| Language | TypeScript (strict mode) |
+| Styling | Tailwind CSS v4 |
+| Date Utils | date-fns v4 |
+| UI Components | @base-ui/react (Shadcn primitives) |
+| Icons | @hugeicons/react + @hugeicons/core-free-icons |
+| Storage | localStorage (client-side) |
 
 ## Getting Started
 
-First, run the development server:
+### Prerequisites
+
+- Node.js 20+ or Bun 1.0+
+- npm, yarn, pnpm, or bun
+
+### Installation
 
 ```bash
+# Clone the repository
+git clone <your-repo-url>
+cd wallcalender
+
+# Install dependencies
+npm install
+# or
+bun install
+
+# Start development server
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
 # or
 bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open [http://localhost:3000](http://localhost:3000) in your browser.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+### Build for Production
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```bash
+npm run build
+npm start
+```
 
-## Learn More
+## Architecture
 
-To learn more about Next.js, take a look at the following resources:
+### Component Structure
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+```
+components/calendar/
+├── Calendar.tsx        # Root orchestrator — owns all state
+├── CalendarGrid.tsx    # 7-column grid renderer
+├── DayCell.tsx         # Individual day with range visualization
+├── HeroImage.tsx       # Hero photo + spiral binding
+├── MonthNavigator.tsx  # Prev/next month buttons
+└── NotesPanel.tsx      # Notes CRUD interface
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+lib/
+├── calendar-utils.ts   # Pure date-fns functions
+└── holidays.ts         # Static US holiday data
+```
 
-## Deploy on Vercel
+### State Management
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+All state lives in `Calendar.tsx` and is passed down as props:
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+```typescript
+const [currentMonth, setCurrentMonth] = useState<Date>()
+const [selectionPhase, setSelectionPhase] = useState<SelectionPhase>("idle" | "selecting" | "selected")
+const [rangeStart, setRangeStart] = useState<Date | null>()
+const [rangeEnd, setRangeEnd] = useState<Date | null>()
+const [hoverDate, setHoverDate] = useState<Date | null>()
+const [notes, setNotes] = useState<CalendarNote[]>([])
+const [animationDirection, setAnimationDirection] = useState<"left" | "right">()
+```
+
+### 3-Click Selection State Machine
+
+```
+┌──────┐  Click 1  ┌───────────┐  Click 2  ┌─────────┐
+│ idle │ ─────────>│ selecting │ ─────────>│ selected│
+└──────┘           └───────────┘           └─────────┘
+    ^                                         │
+    │           Click 3                       │
+    └─────────────────────────────────────────┘
+```
+
+### localStorage Schema
+
+```typescript
+// Key: "wall-calendar-notes-v1"
+// Value: CalendarNote[]
+
+interface CalendarNote {
+  id: string           // crypto.randomUUID()
+  rangeStart: string   // "yyyy-MM-dd"
+  rangeEnd: string     // "yyyy-MM-dd"
+  content: string
+  createdAt: string    // ISO timestamp
+  updatedAt: string
+}
+```
+
+## Keyboard Shortcuts
+
+| Key | Action |
+|-----|--------|
+| `←` | Previous month |
+| `→` | Next month |
+| `Esc` | Clear selection |
+
+## Bonus Features Implemented
+
+1. **Month Navigation Animation** — Slide-in from left/right on month change using `tw-animate-css`
+2. **Hover Range Preview** — Real-time range visualization while selecting (50% opacity)
+3. **Holiday Highlights** — Federal holidays with indicator dots and tooltips
+4. **Keyboard Navigation** — Full arrow key + Escape support
+
+## Design Tokens
+
+```css
+:root {
+  --cal-accent: oklch(0.5 0.24 264);       /* Primary accent */
+  --cal-accent-light: oklch(0.94 0.05 264); /* Range bands */
+  --cal-accent-mid: oklch(0.75 0.12 264);   /* Secondary indicators */
+  --cal-accent-rgb: 79, 70, 229;            /* For rgba() */
+}
+```
+
+## Project Structure
+
+```
+wallcalender/
+├── app/
+│   ├── globals.css       # Theme config + animations
+│   ├── layout.tsx        # Root layout + providers
+│   └── page.tsx          # Background + Calendar mount
+├── components/
+│   ├── calendar/         # Calendar components
+│   └── ui/               # Shadcn primitives
+├── lib/
+│   ├── calendar-utils.ts # Date helpers
+│   ├── holidays.ts       # Holiday data
+│   └── utils.ts          # cn() helper
+└── README.md
+```
+
+## Assignment Completion
+
+This project fulfills the frontend engineering challenge requirements:
+
+- ✅ Wall calendar UI with hero, grid, and notes sections
+- ✅ Date range selection with visual states
+- ✅ Notes attached to date ranges with localStorage persistence
+- ✅ Fully responsive design
+- ✅ Premium Dribbble-level polish
+- ✅ Smooth animations and micro-interactions
+- ✅ Keyboard navigation support
+- ✅ Clean TypeScript architecture
+
+---
+
+Built with ❤️ for the frontend internship evaluation.

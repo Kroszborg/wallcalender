@@ -52,6 +52,7 @@
   --cal-accent: oklch(0.5 0.24 264);
   --cal-accent-light: oklch(0.94 0.05 264);
   --cal-accent-mid: oklch(0.75 0.12 264);
+  --cal-accent-rgb: 79, 70, 229;
   --background: oklch(1 0 0);
   --foreground: oklch(0.145 0 0);
   --card: oklch(1 0 0);
@@ -90,6 +91,7 @@
   --cal-accent: oklch(0.68 0.19 264);
   --cal-accent-light: oklch(0.23 0.05 264);
   --cal-accent-mid: oklch(0.45 0.14 264);
+  --cal-accent-rgb: 129, 120, 255;
   --background: oklch(0.145 0 0);
   --foreground: oklch(0.985 0 0);
   --card: oklch(0.205 0 0);
@@ -121,6 +123,11 @@
   --sidebar-accent-foreground: oklch(0.985 0 0);
   --sidebar-border: oklch(1 0 0 / 10%);
   --sidebar-ring: oklch(0.556 0 0);
+}
+
+@keyframes cal-beacon {
+  0% { transform: scale(1); opacity: 0.45; }
+  70%, 100% { transform: scale(2.2); opacity: 0; }
 }
 
 @layer base {
