@@ -153,13 +153,7 @@ export function Calendar() {
   return (
     <div
       suppressHydrationWarning
-      className={cn(
-        "w-full max-w-[480px] md:max-w-[520px]",
-        "rounded-[28px] overflow-hidden bg-white",
-        // Slight physical tilt — real calendar hanging on wall
-        "rotate-[0.25deg]",
-        "shadow-[0_48px_120px_-20px_rgba(0,0,0,0.28),0_16px_40px_-8px_rgba(0,0,0,0.14),0_0_0_1px_rgba(0,0,0,0.05)]"
-      )}
+      className="w-full max-w-[420px] rounded-2xl overflow-hidden bg-white shadow-[0_20px_60px_-12px_rgba(0,0,0,0.15)] border border-stone-200/50"
     >
       <HeroImage month={currentMonth} />
 

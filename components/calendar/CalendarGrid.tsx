@@ -1,9 +1,8 @@
 "use client"
 
-import { isSameDay, isWithinInterval, format, parseISO } from "date-fns"
+import { isSameDay, isWithinInterval, format } from "date-fns"
 import { cn } from "@/lib/utils"
 import { buildCalendarDays, isInRange } from "@/lib/calendar-utils"
-import { getHoliday } from "@/lib/holidays"
 import { DayCell } from "./DayCell"
 import type { SelectionPhase, DateRange, CalendarNote } from "@/lib/calendar-utils"
 
@@ -90,30 +89,15 @@ export function CalendarGrid({
             isInRange(day.date, activeRange) &&
             !isStart
 
-          const hasNote = notes.some((n) => {
-            try {
-              return isWithinInterval(day.date, {
-                start: parseISO(n.rangeStart),
-                end: parseISO(n.rangeEnd),
-              })
-            } catch {
-              return false
-            }
-          })
-
           return (
             <DayCell
               key={day.date.toISOString()}
               date={day.date}
               isCurrentMonth={day.isCurrentMonth}
-              isToday={day.isToday}
-              isWeekend={day.isWeekend}
               isStart={isStart}
               isEnd={isEnd}
               isInRange={inConfirmedRange}
               isHoverRange={inHoverRange}
-              hasNote={hasNote}
-              holiday={getHoliday(day.date)}
               onClick={() => onDayClick(day.date)}
               onMouseEnter={() => onDayHover(day.date)}
               onMouseLeave={() => {}}
