@@ -76,16 +76,33 @@ export function NotesPanel({
       <div className="px-5 pb-5 pt-4 bg-white">
         {/* ── Section header ──────────────────────────────── */}
         <div className="flex items-center gap-2 mb-4">
+          <div
+            className="size-1.5 rounded-full flex-shrink-0"
+            style={{ backgroundColor: "var(--cal-accent)" }}
+          />
           <span className="text-[11px] font-semibold uppercase tracking-wider text-stone-400">
             Notes
           </span>
           {rangeLabel && (
-            <span className="text-[11px] font-medium text-stone-600">
+            <span
+              key={rangeLabel}
+              className="text-[11px] font-medium px-2 py-0.5 rounded-full animate-in fade-in-0 zoom-in-95 duration-200"
+              style={{
+                backgroundColor: "var(--cal-accent-light)",
+                color: "var(--cal-accent)",
+              }}
+            >
               {rangeLabel}
             </span>
           )}
           {rangeNotes.length > 0 && (
-            <span className="ml-auto text-[11px] font-semibold text-stone-400">
+            <span
+              className="ml-auto text-[11px] font-bold rounded-full px-2 py-0.5 animate-in fade-in-0 zoom-in-95 duration-200"
+              style={{
+                backgroundColor: "var(--cal-accent-light)",
+                color: "var(--cal-accent)",
+              }}
+            >
               {rangeNotes.length}
             </span>
           )}

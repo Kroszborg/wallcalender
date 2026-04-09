@@ -11,6 +11,12 @@ import type { SelectionPhase, DateRange, CalendarNote } from "@/lib/calendar-uti
 
 const NOTES_KEY = "wall-calendar-notes-v1"
 
+const MONTH_ACCENTS = [
+  "#1e3a5f", "#4a1942", "#1a4d2e", "#4c1d95", // Jan-Apr
+  "#7c2d12", "#0c4a6e", "#7c2d12", "#a16207", // May-Aug
+  "#78350f", "#7c2d12", "#3f3f46", "#1e3a5f", // Sep-Dec
+]
+
 export function Calendar() {
   const [currentMonth, setCurrentMonth] = useState<Date>(() => startOfMonth(new Date()))
   const [selectionPhase, setSelectionPhase] = useState<SelectionPhase>("idle")
@@ -160,9 +166,9 @@ export function Calendar() {
     >
       {/* Month-themed accent border glow */}
       <div
-        className="absolute inset-0 pointer-events-none rounded-3xl"
+        className="absolute inset-0 pointer-events-none rounded-3xl transition-colors duration-500"
         style={{
-          boxShadow: "inset 0 0 0 2px rgba(99, 102, 241, 0.08)",
+          boxShadow: `inset 0 0 0 2px ${MONTH_ACCENTS[currentMonth.getMonth()]}15`,
         }}
       />
       <HeroImage
