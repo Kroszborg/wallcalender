@@ -131,7 +131,7 @@ export function DayCell({
   if (holiday) {
     return (
       <Tooltip>
-        <TooltipTrigger asChild>
+        <TooltipTrigger render={<div />}>
           {cellContent}
         </TooltipTrigger>
         <TooltipContent side="top" className="text-xs">
