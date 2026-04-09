@@ -2,6 +2,12 @@
 
 import { format, isWeekend as isWeekendDay } from "date-fns"
 import { cn } from "@/lib/utils"
+import { getHoliday } from "@/lib/holidays"
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip"
 
 interface DayCellProps {
   date: Date
@@ -30,8 +36,9 @@ export function DayCell({
   const isToday = format(new Date(), "yyyy-MM-dd") === format(date, "yyyy-MM-dd")
   const isWeekend = isWeekendDay(date)
   const isSingleDate = isStart && isEnd
+  const holiday = getHoliday(date)
 
-  // Only show bands for multi-date ranges
+  // Only show bands for multi-date ranges (not single date)
   const showStartBand = isStart && !isEnd
   const showEndBand = isEnd && !isStart
   const showMiddleBand = isInRange && !isSingleDate
@@ -48,28 +55,28 @@ export function DayCell({
       onMouseEnter={onMouseEnter}
       onMouseLeave={onMouseLeave}
     >
-      {/* ── Confirmed range band ──────── */}
-      {showStartBand && (
+      {/* ── Confirmed range band — only for multi-date ranges ──────── */}
+      {!isSingleDate && showStartBand && (
         <div
           className="absolute inset-y-[5px] left-1/2 right-0"
           style={{ backgroundColor: "var(--cal-accent-light)" }}
         />
       )}
-      {showMiddleBand && (
+      {!isSingleDate && showMiddleBand && (
         <div
           className="absolute inset-y-[5px] left-0 right-0"
           style={{ backgroundColor: "var(--cal-accent-light)" }}
         />
       )}
-      {showEndBand && (
+      {!isSingleDate && showEndBand && (
         <div
           className="absolute inset-y-[5px] left-0 right-1/2"
           style={{ backgroundColor: "var(--cal-accent-light)" }}
         />
       )}
 
-      {/* ── Hover preview band ─────────── */}
-      {showHoverBand && (
+      {/* ── Hover preview band — only for multi-date ranges ─────────── */}
+      {!isSingleDate && showHoverBand && (
         <div
           className="absolute inset-y-[5px] left-0 right-0"
           style={{ backgroundColor: "var(--cal-accent-light)", opacity: 0.5 }}
@@ -103,8 +110,15 @@ export function DayCell({
       >
         <span>{dayNumber}</span>
 
+        {/* Holiday dot */}
+        {holiday && !isSelected && (
+          <span
+            className="absolute bottom-[3px] size-1.5 rounded-full bg-rose-400"
+          />
+        )}
+
         {/* Today accent dot */}
-        {isToday && !isSelected && (
+        {isToday && !holiday && !isSelected && (
           <span
             className="absolute bottom-[3px] size-1 rounded-full"
             style={{ backgroundColor: "var(--cal-accent)" }}
@@ -113,6 +127,19 @@ export function DayCell({
       </button>
     </div>
   )
+
+  if (holiday) {
+    return (
+      <Tooltip>
+        <TooltipTrigger asChild>
+          {cellContent}
+        </TooltipTrigger>
+        <TooltipContent side="top" className="text-xs">
+          {holiday.name}
+        </TooltipContent>
+      </Tooltip>
+    )
+  }
 
   return cellContent
 }

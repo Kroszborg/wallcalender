@@ -2,12 +2,13 @@
 
 import { useState, useEffect } from "react"
 import { format } from "date-fns"
+import { cn } from "@/lib/utils"
 
 const MONTH_PHOTOS: Record<number, string> = {
-  0:  "https://images.unsplash.com/photo-1477601263568-180e2c6d046e?w=1400&auto=format&fit=crop&q=80",
+  0:  "https://images.unsplash.com/photo-1541534741688-6078c6bfb5c5?w=1400&auto=format&fit=crop&q=80",
   1:  "https://images.unsplash.com/photo-1518199266791-5375a83190b7?w=1400&auto=format&fit=crop&q=80",
-  2:  "https://images.unsplash.com/photo-1462275646964-a0e3386b89fa?w=1400&auto=format&fit=crop&q=80",
-  3:  "https://images.unsplash.com/photo-1490750967868-88df5691aba9?w=1400&auto=format&fit=crop&q=80",
+  2:  "https://images.unsplash.com/photo-1490750967868-88df5691aba9?w=1400&auto=format&fit=crop&q=80",
+  3:  "https://images.unsplash.com/photo-1528640934460-891a83e4a6e4?w=1400&auto=format&fit=crop&q=80",
   4:  "https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?w=1400&auto=format&fit=crop&q=80",
   5:  "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=1400&auto=format&fit=crop&q=80",
   6:  "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=1400&auto=format&fit=crop&q=80",
@@ -35,16 +36,22 @@ const MONTH_SUBTITLES: Record<number, string> = {
 
 interface HeroImageProps {
   month: Date
+  key?: string
+  animate?: boolean
 }
 
-export function HeroImage({ month }: HeroImageProps) {
+export function HeroImage({ month, animate = false }: HeroImageProps) {
   const m = month.getMonth()
   const photoUrl = MONTH_PHOTOS[m]
   const [loaded, setLoaded] = useState(false)
   const daysInMonth = new Date(month.getFullYear(), m + 1, 0).getDate()
 
+  // Preload image when month changes
   useEffect(() => {
     setLoaded(false)
+    const img = new Image()
+    img.src = photoUrl
+    img.onload = () => setLoaded(true)
   }, [photoUrl])
 
   return (
@@ -95,7 +102,10 @@ export function HeroImage({ month }: HeroImageProps) {
 
       {/* ── Hero photo ────────────────────────────────────── */}
       <div
-        className="group relative w-full overflow-hidden"
+        className={cn(
+          "group relative w-full overflow-hidden transition-all duration-400",
+          animate && "animate-in zoom-out-50 fade-out-0 duration-300"
+        )}
         style={{
           aspectRatio: "16/6",
           backgroundColor: MONTH_FALLBACK[m],

@@ -136,17 +136,17 @@ interface CalendarNote {
 
 1. **Month Navigation Animation** — Slide-in from left/right on month change using `tw-animate-css`
 2. **Hover Range Preview** — Real-time range visualization while selecting (50% opacity)
-3. **Holiday Highlights** — Federal holidays with indicator dots and tooltips
-4. **Keyboard Navigation** — Full arrow key + Escape support
+3. **Keyboard Navigation** — Full arrow key + Escape support
+4. **Physical Calendar Aesthetic** — Spiral binding, film grain, subtle tilt for authentic feel
 
 ## Design Tokens
 
 ```css
 :root {
-  --cal-accent: oklch(0.5 0.24 264);       /* Primary accent */
-  --cal-accent-light: oklch(0.94 0.05 264); /* Range bands */
-  --cal-accent-mid: oklch(0.75 0.12 264);   /* Secondary indicators */
-  --cal-accent-rgb: 79, 70, 229;            /* For rgba() */
+  --cal-accent: #6366f1;        /* Primary accent (indigo-500) */
+  --cal-accent-light: #e0e7ff;  /* Range bands (indigo-100) */
+  --cal-accent-mid: #a5b4fc;    /* Secondary indicators (indigo-300) */
+  --cal-accent-rgb: 99, 102, 241;
 }
 ```
 

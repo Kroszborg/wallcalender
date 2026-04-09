@@ -48,13 +48,13 @@ export function Calendar() {
   function handlePrevMonth() {
     setAnimationDirection("right")
     setCurrentMonth(prev => subMonths(prev, 1))
-    setTimeout(() => setAnimationDirection(null), 320)
+    setTimeout(() => setAnimationDirection(null), 400)
   }
 
   function handleNextMonth() {
     setAnimationDirection("left")
     setCurrentMonth(prev => addMonths(prev, 1))
-    setTimeout(() => setAnimationDirection(null), 320)
+    setTimeout(() => setAnimationDirection(null), 400)
   }
 
   // ── Keyboard navigation ───────────────────────────────────
@@ -70,12 +70,12 @@ export function Calendar() {
         e.preventDefault()
         setAnimationDirection("right")
         setCurrentMonth(prev => subMonths(prev, 1))
-        setTimeout(() => setAnimationDirection(null), 320)
+        setTimeout(() => setAnimationDirection(null), 400)
       } else if (e.key === "ArrowRight") {
         e.preventDefault()
         setAnimationDirection("left")
         setCurrentMonth(prev => addMonths(prev, 1))
-        setTimeout(() => setAnimationDirection(null), 320)
+        setTimeout(() => setAnimationDirection(null), 400)
       } else if (e.key === "Escape") {
         setRangeStart(null)
         setRangeEnd(null)
@@ -153,12 +153,23 @@ export function Calendar() {
   return (
     <div
       suppressHydrationWarning
-      className="w-full max-w-[500px] rounded-3xl overflow-hidden bg-white shadow-[0_40px_120px_-20px_rgba(0,0,0,0.25)]"
+      className="w-full max-w-[500px] rounded-3xl overflow-hidden bg-white shadow-[0_40px_120px_-20px_rgba(0,0,0,0.25)] relative"
       style={{
         transform: "rotate(0.15deg)",
       }}
     >
-      <HeroImage month={currentMonth} />
+      {/* Month-themed accent border glow */}
+      <div
+        className="absolute inset-0 pointer-events-none rounded-3xl"
+        style={{
+          boxShadow: "inset 0 0 0 2px rgba(99, 102, 241, 0.08)",
+        }}
+      />
+      <HeroImage
+        month={currentMonth}
+        key={format(currentMonth, "yyyy-MM")}
+        animate={animationDirection !== null}
+      />
 
       <MonthNavigator
         currentMonth={currentMonth}

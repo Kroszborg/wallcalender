@@ -3,6 +3,7 @@
 import { isSameDay, isWithinInterval, format } from "date-fns"
 import { cn } from "@/lib/utils"
 import { buildCalendarDays, isInRange } from "@/lib/calendar-utils"
+import { getHoliday } from "@/lib/holidays"
 import { DayCell } from "./DayCell"
 import type { SelectionPhase, DateRange, CalendarNote } from "@/lib/calendar-utils"
 
@@ -59,17 +60,20 @@ export function CalendarGrid({
         ))}
       </div>
 
-      {/* Calendar grid — key change triggers slide animation */}
+      {/* Calendar grid — flip animation on month change */}
       <div
         key={format(currentMonth, "yyyy-MM")}
         className={cn(
           "grid grid-cols-7",
           animationDirection === "left" &&
-            "animate-in slide-in-from-right-5 fade-in-0 duration-300",
+            "animate-in zoom-in-95 fade-in-0 duration-400",
           animationDirection === "right" &&
-            "animate-in slide-in-from-left-5 fade-in-0 duration-300",
+            "animate-in zoom-in-95 fade-in-0 duration-400",
           animationDirection === null && "animate-in fade-in-0 duration-200"
         )}
+        style={{
+          transformOrigin: animationDirection === "left" ? "right center" : animationDirection === "right" ? "left center" : undefined,
+        }}
       >
         {days.map((day) => {
           const isStart = !!(rangeStart && isSameDay(day.date, rangeStart))
